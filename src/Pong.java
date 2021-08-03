@@ -3,7 +3,7 @@
  */
 
 /**
- * @author nkhal
+ * @author Elensarr
  *
  */
 public class Pong {
