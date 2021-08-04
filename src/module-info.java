@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author nkhal
- *
- */
-module Pong {
-}
