@@ -33,6 +33,21 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	public static final int PADDLE_MOVEMENT_SPEED = 3;
 	//how many points a player must have to win the game
 	public static final int POINTS_TO_WIN = 3;
+	public static final int SCORE_X_PADDING = 100;
+	public static final int SCORE_Y_PADDING = 100;
+	public static final int SCORE_FONT_SIZE = 50;
+	public static final String SCORE_FONT_TYPE = "Serif";
+	// message 'You won'
+	public static final String WINNING_MESSAGE = "YOU WON!";
+	public static final int WIN_X_PADDING = 100;
+	public static final int WIN_Y_PADDING = 150;
+	public static final int WIN_FONT_SIZE = 50;
+	
+
+	
+	
+	
+	
 	//hold the current score for each player
 	int player1Score = 0, player2Score = 0;
 	//hold the player who has won
@@ -149,6 +164,11 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 			paintSprite(g, paddle2);
 			paintScores(g);
 		}
+		if (gameState == GameState.GameOver) {
+			
+			paintWinner(g);
+		}
+		
 	}
 	
 	private void paintDottedLine(Graphics g) {
@@ -251,15 +271,28 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	}
 	
 	private void paintScores(Graphics g) {
-		 int xPadding = 100;
-         int yPadding = 100;
-         int fontSize = 50; 
-         Font scoreFont = new Font("Serif", Font.BOLD, fontSize);
+		 Font scoreFont = new Font(SCORE_FONT_TYPE, Font.BOLD, SCORE_FONT_SIZE);
          String leftScore = Integer.toString(player1Score);
          String rightScore = Integer.toString(player2Score);
          g.setFont(scoreFont);
-         g.drawString(leftScore, xPadding, yPadding);
-        g.drawString(rightScore, getWidth()-xPadding, yPadding);
+         g.drawString(leftScore, SCORE_X_PADDING, SCORE_Y_PADDING);
+         g.drawString(rightScore, getWidth()-SCORE_X_PADDING, SCORE_Y_PADDING);
+	}
+	
+	private void paintWinner(Graphics g) {
+		int win_X_padding = 0;
+		if (gameWinner == Player.One) {
+			win_X_padding = WIN_X_PADDING;
+		}
+		else if (gameWinner == Player.Two) {
+			win_X_padding = getWidth() - WIN_X_PADDING;
+		}
+		
+		Font winnerFont = new Font(SCORE_FONT_TYPE, Font.BOLD, WIN_FONT_SIZE);
+        
+        g.setFont(winnerFont);
+        g.drawString(WINNING_MESSAGE, win_X_padding, WIN_Y_PADDING);
+        
 	}
 	
 	
