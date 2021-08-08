@@ -71,6 +71,13 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	} // closes constructor
 	
 	// method for updating the object positions and run our game logic
+	
+	// The reason we use the createObjects() method and call it from update()
+	// rather than creating the objects inside the constructor is that we do not 
+	// have access to the width and height of the panel yet. These two values
+	// are needed to correctly create the ball and paddles. It is not until the 
+	// constructor completes that the panel has been properly initialised and has 
+	// a width and height. To avoid this, we instead initialise our objects on our first update() call.
 	private void update() {
 		if (gameInitialised == false) {
 			createObjects();
