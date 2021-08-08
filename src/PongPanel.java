@@ -11,6 +11,7 @@
 import javax.swing.JPanel;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -29,6 +30,13 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	public static final Color BACKGROUND_COLOUR = Color.BLACK;
 	public static final int TIMER_DELAY = 5;
 	public static final int BALL_MOVEMENT_SPEED = 2;
+	public static final int PADDLE_MOVEMENT_SPEED = 3;
+	//how many points a player must have to win the game
+	public static final int POINTS_TO_WIN = 3;
+	//hold the current score for each player
+	int player1Score = 0, player2Score = 0;
+	//hold the player who has won
+	Player gameWinner;
 
 // === VARIABLES ====
 	// ball variable
@@ -50,16 +58,16 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	@Override
 	public void keyPressed(KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.VK_UP) {
-			paddle2.set_yVelocity(-2);
+			paddle2.set_yVelocity(-PADDLE_MOVEMENT_SPEED);
 		}
 		else if (event.getKeyCode() == KeyEvent.VK_DOWN) {
-			paddle2.set_yVelocity(2);
+			paddle2.set_yVelocity(PADDLE_MOVEMENT_SPEED);
 		}
 		if (event.getKeyCode() == KeyEvent.VK_W) {
-			paddle1.set_yVelocity(-2);
+			paddle1.set_yVelocity(-PADDLE_MOVEMENT_SPEED);
 		}
 		else if (event.getKeyCode() == KeyEvent.VK_S) {
-			paddle1.set_yVelocity(2);
+			paddle1.set_yVelocity(PADDLE_MOVEMENT_SPEED);
 		}
 		
 	}
@@ -121,6 +129,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 				moveObject(ball);
 				checkWallBounce();
 				checkPaddleBounce();
+				checkWin();
 				break;
 			}
 			case GameOver: {
@@ -138,6 +147,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 			paintSprite(g, ball);
 			paintSprite(g, paddle1);
 			paintSprite(g, paddle2);
+			paintScores(g);
 		}
 	}
 	
@@ -167,7 +177,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	//takes a Sprite as a parameter and increases the x and y position of the given object by the x and y velocity of the object.
 	private void moveObject(Sprite sprite) {	
 		sprite.set_xPosition((sprite.get_xPosition() + sprite.get_xVelocity()), getWidth());
-		sprite.set_yPosition((sprite.get_yPosition() + sprite.get_yVelocity()), getWidth());		
+		sprite.set_yPosition((sprite.get_yPosition() + sprite.get_yVelocity()), getHeight());		
 	}
 	
 	//test whether the ball is at the edge of the screen. If it is, reverse the velocity
@@ -176,11 +186,13 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 		if (ball.get_xPosition() <=0) {
 			ball.set_xVelocity(-ball.get_xVelocity());
 			resetBall();
+			addScore(Player.Two);
 		}
 		// hits right side
 		else if (ball.get_xPosition() >= (getWidth() - ball.get_width())) {
 			ball.set_xVelocity(-ball.get_xVelocity());
-			resetBall();			
+			resetBall();	
+			addScore(Player.One);
 		}
 		// hits top or bottom 
 		if ((ball.get_yPosition()<=0) || (ball.get_yPosition() >=(getHeight()-ball.get_height()))) {
@@ -189,7 +201,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	}
 	// check if the ball and paddle rectangles intersect. If they do, then reverse the x velocity of the ball.
 	private void checkPaddleBounce() {
-		if ((ball.get_xPosition() - ball.get_width()/2) == paddle1.get_xPosition() && 
+		/*if ((ball.get_xPosition() - ball.get_width()/2) == paddle1.get_xPosition() && 
 				((ball.get_yPosition() - ball.get_height()/2) <= (paddle1.get_yPosition() + paddle1.get_height()/2) && 
 				((ball.get_yPosition() + ball.get_height()/2) >= (paddle1.get_yPosition() - paddle1.get_height()/2)))) {
 			ball.set_xVelocity(-ball.get_xVelocity());
@@ -198,13 +210,58 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 				((ball.get_yPosition() - ball.get_height()/2) <= (paddle2.get_yPosition() + paddle2.get_height()/2) && 
 				((ball.get_yPosition() + ball.get_height()/2) >= (paddle2.get_yPosition() - paddle2.get_height()/2)))) {
 			ball.set_xVelocity(-ball.get_xVelocity());
-		}
+		}*/
+		
+		 if(ball.get_xVelocity() < 0 && ball.getRectangle().intersects(paddle1.getRectangle())) {
+	          ball.set_xVelocity(BALL_MOVEMENT_SPEED);
+	      }
+	      if(ball.get_xVelocity() > 0 && ball.getRectangle().intersects(paddle2.getRectangle())) {
+	          ball.set_xVelocity(-BALL_MOVEMENT_SPEED);
+	      }
+		
 	}
 	
 	// resets Ball to initial position
 	private void resetBall() {
 		ball.resetToInitialPosition();
 	}
+	
+	//takes Player as a parameter. 
+	//Increase either player1Score or player2Score depending on the parameter.
+	private void addScore(Player player) {
+		if (player == Player.One) {
+			player1Score ++;
+		}
+		else if (player == Player.Two) {
+			player2Score ++;
+		}
+	}
+	
+	//check if either player has scored enough points to win. 
+	//If they have, set the gameWinner and then change the gameState to GameOver.
+	private void checkWin() {
+		if (player1Score >=POINTS_TO_WIN) {
+			gameWinner = Player.One;
+			gameState = GameState.GameOver;
+		}
+		else if (player2Score >=POINTS_TO_WIN) {
+			gameWinner = Player.Two;
+			gameState = GameState.GameOver;
+		}		
+	}
+	
+	private void paintScores(Graphics g) {
+		 int xPadding = 100;
+         int yPadding = 100;
+         int fontSize = 50; 
+         Font scoreFont = new Font("Serif", Font.BOLD, fontSize);
+         String leftScore = Integer.toString(player1Score);
+         String rightScore = Integer.toString(player2Score);
+         g.setFont(scoreFont);
+         g.drawString(leftScore, xPadding, yPadding);
+        g.drawString(rightScore, getWidth()-xPadding, yPadding);
+	}
+	
 	
 }// closes PongPanel class
 
