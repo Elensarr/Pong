@@ -23,7 +23,7 @@ public class Sprite {
 		this.yPosition = new_yPosition;
 	}
 	
-	public void set_initial_Position(int initialX, int initialY) {
+	public void set_initialPosition(int initialX, int initialY) {
 		initial_xPosition = initialX;
 		initial_yPosition = initialY;
 	}
@@ -54,7 +54,7 @@ public class Sprite {
 	}
 	
 	// set the x and y position of the object to the initial x and y positions.
-			private void resetToInitialPosition() {
+			public void resetToInitialPosition() {
 				set_xPosition(initial_xPosition);
 				set_yPosition(initial_yPosition);			
 			}
