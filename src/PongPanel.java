@@ -34,7 +34,8 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	Ball ball;
 	// This variable will be set to true when the game has finished 
 	// Initialization and the objects have been successfully created.
-	boolean gameInitialised = false;
+	
+	GameState gameState = GameState.Initialising;
 	
 	
 	
@@ -79,9 +80,18 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	// constructor completes that the panel has been properly initialised and has 
 	// a width and height. To avoid this, we instead initialise our objects on our first update() call.
 	private void update() {
-		if (gameInitialised == false) {
-			createObjects();
-			gameInitialised = true;
+		switch (gameState) {
+			case Initialising: {
+				createObjects();
+				gameState = GameState.Playing;
+				break;
+			}
+			case Playing: {
+				break;
+			}
+			case GameOver: {
+				break;
+			}
 		}
 		
 	}
@@ -90,7 +100,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		paintDottedLine(g);
-		if (gameInitialised) {
+		if (gameState != GameState.Initialising) {
 			paintSprite(g, ball);
 		}
 	}
