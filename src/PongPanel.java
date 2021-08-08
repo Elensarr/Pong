@@ -28,6 +28,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 // ==== CONTATNTS ====
 	public static final Color BACKGROUND_COLOUR = Color.BLACK;
 	public static final int TIMER_DELAY = 5;
+	public static final int BALL_MOVEMENT_SPEED = 2;
 
 // === VARIABLES ====
 	// ball variable
@@ -84,9 +85,15 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 			case Initialising: {
 				createObjects();
 				gameState = GameState.Playing;
+				// setting ball speed
+				ball.set_xVelocity(BALL_MOVEMENT_SPEED);
+				ball.set_yVelocity(BALL_MOVEMENT_SPEED);
+				
 				break;
 			}
 			case Playing: {
+				moveObject(ball);
+				checkWallBounce();
 				break;
 			}
 			case GameOver: {
@@ -123,6 +130,24 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	private void paintSprite(Graphics g, Sprite sprite) {
 		g.setColor(sprite.get_color());
 		g.fillRect(sprite.get_xPosition(), sprite.get_yPosition(), sprite.get_width(), sprite.get_height());
+	}
+	
+	//takes a Sprite as a parameter and increases the x and y position of the given object by the x and y velocity of the object.
+	private void moveObject(Sprite sprite) {	
+		sprite.set_xPosition((sprite.get_xPosition() + sprite.get_xVelocity()), getWidth());
+		sprite.set_yPosition((sprite.get_yPosition() + sprite.get_yVelocity()), getWidth());		
+	}
+	
+	//test whether the ball is at the edge of the screen. If it is, reverse the velocity
+	private void checkWallBounce() {
+		// hits left or right side
+		if ((ball.get_xPosition() <=0) || (ball.get_xPosition() >= (getWidth() - ball.get_width()))) {
+			ball.set_xVelocity(-ball.get_xVelocity());
+		}
+		// hits yop or bottom 
+		if ((ball.get_yPosition()<=0) || (ball.get_yPosition() >=(getHeight()-ball.get_height()))) {
+			ball.set_yVelocity(-ball.get_yVelocity());
+		}
 	}
 	
 }// closes PongPanel class
