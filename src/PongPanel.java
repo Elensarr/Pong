@@ -35,6 +35,7 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	Ball ball;
 	// This variable will be set to true when the game has finished 
 	// Initialization and the objects have been successfully created.
+	Paddle paddle1, paddle2;
 	
 	GameState gameState = GameState.Initialising;
 	
@@ -48,13 +49,29 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent event) {
-		// TODO Auto-generated method stub
+		if (event.getKeyCode() == KeyEvent.VK_UP) {
+			paddle2.set_yVelocity(-2);
+		}
+		else if (event.getKeyCode() == KeyEvent.VK_DOWN) {
+			paddle2.set_yVelocity(2);
+		}
+		if (event.getKeyCode() == KeyEvent.VK_W) {
+			paddle1.set_yVelocity(-2);
+		}
+		else if (event.getKeyCode() == KeyEvent.VK_S) {
+			paddle1.set_yVelocity(2);
+		}
 		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent event) {
-		// TODO Auto-generated method stub
+		if(event.getKeyCode() == KeyEvent.VK_UP || event.getKeyCode() == KeyEvent.VK_DOWN) {
+			paddle2.set_yVelocity(0);
+		}
+		if(event.getKeyCode() == KeyEvent.VK_W || event.getKeyCode() == KeyEvent.VK_S) {
+			paddle1.set_yVelocity(0);
+		}
 		
 	}
 
@@ -70,6 +87,13 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 			setBackground(BACKGROUND_COLOUR);
 			Timer timer = new Timer(TIMER_DELAY, this);
 			timer.start();
+			// add the KeyListener to the panel 
+			addKeyListener(this);
+			//set the focusable variable
+			//because the JPanel (PongPanel) must have focus to receive keyboard events 
+			//Doing this will call the keyPressed() method when a key is pressed 
+			// and the keyReleased()method when a key is released.
+			setFocusable(true);
 	} // closes constructor
 	
 	// method for updating the object positions and run our game logic
@@ -92,8 +116,11 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 				break;
 			}
 			case Playing: {
+				moveObject(paddle1);
+				moveObject(paddle2);
 				moveObject(ball);
 				checkWallBounce();
+				checkPaddleBounce();
 				break;
 			}
 			case GameOver: {
@@ -109,6 +136,8 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 		paintDottedLine(g);
 		if (gameState != GameState.Initialising) {
 			paintSprite(g, ball);
+			paintSprite(g, paddle1);
+			paintSprite(g, paddle2);
 		}
 	}
 	
@@ -122,9 +151,12 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 		
 	}
 	
-	// creates Ball object
+	// creates Ball and Paddles object
 	private void createObjects() {
 		ball = new Ball(getWidth(), getHeight());
+		paddle1 = new Paddle(Player.One, getWidth(), getHeight());
+		paddle2 = new Paddle(Player.Two, getWidth(), getHeight());
+
 	}
 	
 	private void paintSprite(Graphics g, Sprite sprite) {
@@ -141,13 +173,37 @@ public class PongPanel extends JPanel implements ActionListener, KeyListener {
 	//test whether the ball is at the edge of the screen. If it is, reverse the velocity
 	private void checkWallBounce() {
 		// hits left or right side
-		if ((ball.get_xPosition() <=0) || (ball.get_xPosition() >= (getWidth() - ball.get_width()))) {
+		if (ball.get_xPosition() <=0) {
 			ball.set_xVelocity(-ball.get_xVelocity());
+			resetBall();
 		}
-		// hits yop or bottom 
+		// hits right side
+		else if (ball.get_xPosition() >= (getWidth() - ball.get_width())) {
+			ball.set_xVelocity(-ball.get_xVelocity());
+			resetBall();			
+		}
+		// hits top or bottom 
 		if ((ball.get_yPosition()<=0) || (ball.get_yPosition() >=(getHeight()-ball.get_height()))) {
 			ball.set_yVelocity(-ball.get_yVelocity());
 		}
+	}
+	// check if the ball and paddle rectangles intersect. If they do, then reverse the x velocity of the ball.
+	private void checkPaddleBounce() {
+		if ((ball.get_xPosition() - ball.get_width()/2) == paddle1.get_xPosition() && 
+				((ball.get_yPosition() - ball.get_height()/2) <= (paddle1.get_yPosition() + paddle1.get_height()/2) && 
+				((ball.get_yPosition() + ball.get_height()/2) >= (paddle1.get_yPosition() - paddle1.get_height()/2)))) {
+			ball.set_xVelocity(-ball.get_xVelocity());
+		}
+		if ((ball.get_xPosition() + ball.get_width()/2)== paddle2.get_xPosition() && 
+				((ball.get_yPosition() - ball.get_height()/2) <= (paddle2.get_yPosition() + paddle2.get_height()/2) && 
+				((ball.get_yPosition() + ball.get_height()/2) >= (paddle2.get_yPosition() - paddle2.get_height()/2)))) {
+			ball.set_xVelocity(-ball.get_xVelocity());
+		}
+	}
+	
+	// resets Ball to initial position
+	private void resetBall() {
+		ball.resetToInitialPosition();
 	}
 	
 }// closes PongPanel class
